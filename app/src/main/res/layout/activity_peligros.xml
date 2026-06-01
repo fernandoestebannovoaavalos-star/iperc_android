@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F5F5">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Peligros Identificados"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#F97316"
+        android:padding="24dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/contenedorPeligros"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"/>
+
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btnFirmar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Firmar Registro"
+        android:backgroundTint="#F97316"
+        android:textColor="@android:color/white"
+        android:padding="16dp"
+        android:layout_margin="16dp"/>
+
+</LinearLayout>
