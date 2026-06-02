@@ -3,50 +3,73 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="24dp"
+    android:padding="16dp"
     android:background="#F5F5F5">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Firma Digital"
-        android:textSize="22sp"
+        android:text="Firma del Trabajador"
+        android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="#F97316"
+        android:textColor="#212121"
         android:layout_marginBottom="8dp"/>
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Firma aquí para confirmar el registro IPERC"
+        android:text="Firme dentro del recuadro con su dedo"
         android:textSize="14sp"
-        android:textColor="#666666"
-        android:layout_marginBottom="16dp"/>
+        android:textColor="#757575"
+        android:layout_marginBottom="12dp"/>
 
+    <!-- El canvas de firma -->
     <com.example.ipercdigital.activities.FirmaView
         android:id="@+id/firmaView"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:background="@android:color/white"
-        android:layout_marginBottom="16dp"/>
+        android:background="#FFFFFF"
+        android:elevation="2dp"/>
 
-    <Button
-        android:id="@+id/btnLimpiar"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Limpiar Firma"
-        android:backgroundTint="#6B7280"
-        android:textColor="@android:color/white"
-        android:padding="12dp"
-        android:layout_marginBottom="12dp"/>
+        android:orientation="horizontal"
+        android:layout_marginTop="12dp"
+        android:gravity="end">
 
-    <Button
-        android:id="@+id/btnGuardar"
+        <Button
+            android:id="@+id/btnLimpiar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Limpiar"
+            android:backgroundTint="#9E9E9E"
+            android:textColor="#FFFFFF"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btnEnviarFirma"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Guardar y Enviar"
+            android:backgroundTint="#FF6F00"/>
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressFirma"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/tvEstadoFirma"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Guardar Registro IPERC"
-        android:backgroundTint="#F97316"
-        android:textColor="@android:color/white"
-        android:padding="16dp"/>
+        android:text=""
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_marginTop="8dp"/>
 
 </LinearLayout>

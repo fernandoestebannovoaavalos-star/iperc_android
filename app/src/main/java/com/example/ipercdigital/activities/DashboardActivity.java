@@ -3,6 +3,7 @@ package com.example.ipercdigital.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -21,10 +22,11 @@ public class DashboardActivity extends AppCompatActivity {
         String nombre = prefs.getString("nombre", "Usuario");
         String rol    = prefs.getString("rol", "");
 
-        TextView tvBienvenido = findViewById(R.id.tvBienvenido);
-        TextView tvRol        = findViewById(R.id.tvRol);
-        Button btnNuevoIperc  = findViewById(R.id.btnNuevoIperc);
-        Button btnListaIperc  = findViewById(R.id.btnListaIperc);
+        TextView tvBienvenido  = findViewById(R.id.tvBienvenido);
+        TextView tvRol         = findViewById(R.id.tvRol);
+        Button btnNuevoIperc   = findViewById(R.id.btnNuevoIperc);
+        Button btnListaIperc   = findViewById(R.id.btnListaIperc);
+        Button btnSupervisor   = findViewById(R.id.btnSupervisor);
         Button btnCerrarSesion = findViewById(R.id.btnCerrarSesion);
 
         tvBienvenido.setText("Bienvenido, " + nombre);
@@ -34,7 +36,16 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(new Intent(this, IpercActivity.class)));
 
         btnListaIperc.setOnClickListener(v ->
-                startActivity(new Intent(this, ListaIpercActivity.class)));
+                startActivity(new Intent(this, ListaRegistrosActivity.class)));
+
+        // Botón supervisor solo visible para supervisor/admin
+        if (rol.equals("supervisor") || rol.equals("admin")) {
+            btnSupervisor.setVisibility(View.VISIBLE);
+            btnSupervisor.setOnClickListener(v ->
+                    startActivity(new Intent(this, SupervisorActivity.class)));
+        } else {
+            btnSupervisor.setVisibility(View.GONE);
+        }
 
         btnCerrarSesion.setOnClickListener(v -> {
             prefs.edit().clear().apply();

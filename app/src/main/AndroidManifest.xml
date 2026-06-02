@@ -33,6 +33,8 @@
         <activity android:name=".activities.ListaIpercActivity"/>
         <activity android:name=".activities.PeligrosActivity"/>
         <activity android:name=".activities.FirmaActivity"/>
+        <activity android:name=".activities.ListaRegistrosActivity"/>
+        <activity android:name=".activities.SupervisorActivity"/>
     </application>
 
 </manifest>

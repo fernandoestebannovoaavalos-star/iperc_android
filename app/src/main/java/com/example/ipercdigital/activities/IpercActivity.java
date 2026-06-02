@@ -182,13 +182,72 @@ public class IpercActivity extends AppCompatActivity {
 
     private void guardarRegistro(int areaId, int actividadId,
                                  double lat, double lon, boolean geoValidado) {
-        Intent intent = new Intent(this, PeligrosActivity.class);
-        intent.putExtra("area_id", areaId);
-        intent.putExtra("actividad_id", actividadId);
-        intent.putExtra("lat", lat);
-        intent.putExtra("lon", lon);
-        intent.putExtra("geo_validado", geoValidado);
-        startActivity(intent);
+        progressBar.setVisibility(View.VISIBLE);
+        btnSiguiente.setEnabled(false);
+
+        SharedPreferences prefs = getSharedPreferences("iperc_prefs", MODE_PRIVATE);
+        String tkn = prefs.getString("token", "");
+
+        // Construir JSON y llamar API
+        org.json.JSONObject body = new org.json.JSONObject();
+        try {
+            body.put("area_id", areaId);
+            body.put("actividad_id", actividadId);
+            body.put("lat", lat);
+            body.put("lon", lon);
+            body.put("geo_validado", geoValidado);
+        } catch (Exception e) { e.printStackTrace(); }
+
+        String finalBody = body.toString();
+        String authHeader = "Bearer " + tkn;
+
+        new Thread(() -> {
+            try {
+                java.net.URL url = new java.net.URL(
+                        com.example.ipercdigital.api.ApiConfig.BASE_URL + "/api/iperc/guardar");
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setRequestProperty("Authorization", authHeader);
+                conn.setDoOutput(true);
+
+                java.io.OutputStream os = conn.getOutputStream();
+                os.write(finalBody.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                os.close();
+
+                java.io.BufferedReader br = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(conn.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) sb.append(line);
+                br.close();
+
+                org.json.JSONObject resp = new org.json.JSONObject(sb.toString());
+                int registroId = resp.getInt("registro_id");
+
+                runOnUiThread(() -> {
+                    progressBar.setVisibility(View.GONE);
+                    btnSiguiente.setEnabled(true);
+                    Intent intent = new Intent(this, PeligrosActivity.class);
+                    intent.putExtra("area_id", areaId);
+                    intent.putExtra("actividad_id", actividadId);
+                    intent.putExtra("lat", lat);
+                    intent.putExtra("lon", lon);
+                    intent.putExtra("geo_validado", geoValidado);
+                    intent.putExtra("registro_id", registroId); // ← clave
+                    startActivity(intent);
+                    finish();
+                });
+
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    progressBar.setVisibility(View.GONE);
+                    btnSiguiente.setEnabled(true);
+                    Toast.makeText(this, "Error guardando IPERC: " + e.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                });
+            }
+        }).start();
     }
 
     @Override

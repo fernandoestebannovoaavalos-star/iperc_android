@@ -52,6 +52,17 @@
         android:layout_marginBottom="16dp"/>
 
     <Button
+        android:id="@+id/btnSupervisor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Panel Supervisor"
+        android:backgroundTint="#1B5E20"
+        android:textColor="@android:color/white"
+        android:padding="16dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"/>
+
+    <Button
         android:id="@+id/btnCerrarSesion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

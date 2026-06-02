@@ -27,7 +27,7 @@ public class PeligrosActivity extends AppCompatActivity {
     private LinearLayout contenedorPeligros;
     private Button btnFirmar;
     private String token;
-    private int areaId, actividadId;
+    private int areaId, actividadId, registroId; // ← agregado registroId
     private double lat, lon;
     private boolean geoValidado;
 
@@ -39,12 +39,12 @@ public class PeligrosActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("iperc_prefs", MODE_PRIVATE);
         token = "Bearer " + prefs.getString("token", "");
 
-        // Recibir datos de IpercActivity
         areaId      = getIntent().getIntExtra("area_id", 0);
         actividadId = getIntent().getIntExtra("actividad_id", 0);
         lat         = getIntent().getDoubleExtra("lat", 0);
         lon         = getIntent().getDoubleExtra("lon", 0);
         geoValidado = getIntent().getBooleanExtra("geo_validado", false);
+        registroId  = getIntent().getIntExtra("registro_id", -1); // ← agregado
 
         contenedorPeligros = findViewById(R.id.contenedorPeligros);
         btnFirmar          = findViewById(R.id.btnFirmar);
@@ -53,12 +53,11 @@ public class PeligrosActivity extends AppCompatActivity {
 
         btnFirmar.setOnClickListener(v -> {
             Intent intent = new Intent(this, FirmaActivity.class);
-            intent.putExtra("area_id", areaId);
-            intent.putExtra("actividad_id", actividadId);
+            intent.putExtra("registro_id", registroId); // ← clave del fix
             intent.putExtra("lat", lat);
             intent.putExtra("lon", lon);
-            intent.putExtra("geo_validado", geoValidado);
             startActivity(intent);
+            finish();
         });
     }
 

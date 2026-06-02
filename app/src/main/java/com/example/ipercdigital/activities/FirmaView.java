@@ -1,3 +1,4 @@
+// FirmaView.java
 package com.example.ipercdigital.activities;
 
 import android.content.Context;
@@ -14,26 +15,28 @@ import android.view.View;
 import java.io.ByteArrayOutputStream;
 
 public class FirmaView extends View {
-    private Paint paint;
-    private Path path;
+
+    private Path path = new Path();
+    private Paint paint = new Paint();
     private Bitmap bitmap;
-    private Canvas canvas;
+    private Canvas bitmapCanvas;
 
     public FirmaView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        paint = new Paint();
+        paint.setAntiAlias(true);
         paint.setColor(Color.BLACK);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(5f);
-        paint.setAntiAlias(true);
-        path = new Path();
+        paint.setStrokeWidth(6f);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+        setBackgroundColor(Color.WHITE);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        canvas = new Canvas(bitmap);
-        canvas.drawColor(Color.WHITE);
+        bitmapCanvas = new Canvas(bitmap);
+        bitmapCanvas.drawColor(Color.WHITE);
     }
 
     @Override
@@ -52,12 +55,9 @@ public class FirmaView extends View {
                 break;
             case MotionEvent.ACTION_MOVE:
                 path.lineTo(x, y);
-                canvas.drawPath(path, paint);
-                path.reset();
-                path.moveTo(x, y);
                 break;
             case MotionEvent.ACTION_UP:
-                canvas.drawPath(path, paint);
+                bitmapCanvas.drawPath(path, paint);
                 path.reset();
                 break;
         }
@@ -66,15 +66,28 @@ public class FirmaView extends View {
     }
 
     public void limpiar() {
-        canvas.drawColor(Color.WHITE);
         path.reset();
+        if (bitmapCanvas != null) {
+            bitmapCanvas.drawColor(Color.WHITE);
+        }
         invalidate();
+    }
+
+    public boolean estaVacia() {
+        // Comprueba si el bitmap es todo blanco
+        Bitmap test = bitmap.copy(Bitmap.Config.ARGB_8888, false);
+        int w = test.getWidth(), h = test.getHeight();
+        for (int x = 0; x < w; x += 4) {
+            for (int y = 0; y < h; y += 4) {
+                if (test.getPixel(x, y) != Color.WHITE) return false;
+            }
+        }
+        return true;
     }
 
     public String obtenerBase64() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        return "data:image/png;base64," +
-                Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 90, baos);
+        return Base64.encodeToString(baos.toByteArray(), Base64.NO_WRAP);
     }
 }
