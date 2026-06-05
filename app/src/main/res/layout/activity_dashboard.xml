@@ -63,6 +63,17 @@
         android:visibility="gone"/>
 
     <Button
+        android:id="@+id/btnCrearUsuario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Crear Usuario"
+        android:backgroundTint="#1F3864"
+        android:textColor="#FFFFFF"
+        android:padding="16dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"/>
+
+    <Button
         android:id="@+id/btnCerrarSesion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -22,12 +22,13 @@ public class DashboardActivity extends AppCompatActivity {
         String nombre = prefs.getString("nombre", "Usuario");
         String rol    = prefs.getString("rol", "");
 
-        TextView tvBienvenido  = findViewById(R.id.tvBienvenido);
-        TextView tvRol         = findViewById(R.id.tvRol);
-        Button btnNuevoIperc   = findViewById(R.id.btnNuevoIperc);
-        Button btnListaIperc   = findViewById(R.id.btnListaIperc);
-        Button btnSupervisor   = findViewById(R.id.btnSupervisor);
-        Button btnCerrarSesion = findViewById(R.id.btnCerrarSesion);
+        TextView tvBienvenido    = findViewById(R.id.tvBienvenido);
+        TextView tvRol           = findViewById(R.id.tvRol);
+        Button btnNuevoIperc     = findViewById(R.id.btnNuevoIperc);
+        Button btnListaIperc     = findViewById(R.id.btnListaIperc);
+        Button btnSupervisor     = findViewById(R.id.btnSupervisor);
+        Button btnCrearUsuario   = findViewById(R.id.btnCrearUsuario);
+        Button btnCerrarSesion   = findViewById(R.id.btnCerrarSesion);
 
         tvBienvenido.setText("Bienvenido, " + nombre);
         tvRol.setText("Rol: " + rol);
@@ -38,13 +39,22 @@ public class DashboardActivity extends AppCompatActivity {
         btnListaIperc.setOnClickListener(v ->
                 startActivity(new Intent(this, ListaRegistrosActivity.class)));
 
-        // Botón supervisor solo visible para supervisor/admin
+        // Panel supervisor para supervisor y admin
         if (rol.equals("supervisor") || rol.equals("admin")) {
             btnSupervisor.setVisibility(View.VISIBLE);
             btnSupervisor.setOnClickListener(v ->
                     startActivity(new Intent(this, SupervisorActivity.class)));
         } else {
             btnSupervisor.setVisibility(View.GONE);
+        }
+
+        // Crear usuario solo para admin
+        if (rol.equals("admin")) {
+            btnCrearUsuario.setVisibility(View.VISIBLE);
+            btnCrearUsuario.setOnClickListener(v ->
+                    startActivity(new Intent(this, CrearUsuarioActivity.class)));
+        } else {
+            btnCrearUsuario.setVisibility(View.GONE);
         }
 
         btnCerrarSesion.setOnClickListener(v -> {

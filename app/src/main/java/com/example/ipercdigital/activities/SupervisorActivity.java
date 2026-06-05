@@ -29,7 +29,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-
+import android.content.Intent;
 public class SupervisorActivity extends AppCompatActivity {
 
     RecyclerView recycler;
@@ -180,6 +180,61 @@ public class SupervisorActivity extends AppCompatActivity {
         }).start();
     }
 
+    private void descargarPdf(int id) {
+        Toast.makeText(this, "Descargando PDF...", Toast.LENGTH_SHORT).show();
+
+        new Thread(() -> {
+            try {
+                java.net.URL url = new java.net.URL(
+                        ApiConfig.BASE_URL + "/api/iperc/pdf/" + id);
+                java.net.HttpURLConnection conn =
+                        (java.net.HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Authorization", "Bearer " + token);
+                conn.setConnectTimeout(15000);
+                conn.setReadTimeout(30000);
+
+                if (conn.getResponseCode() != 200) {
+                    runOnUiThread(() -> Toast.makeText(this,
+                            "Error al descargar PDF", Toast.LENGTH_SHORT).show());
+                    return;
+                }
+
+                java.io.InputStream is = conn.getInputStream();
+                java.io.File archivo = new java.io.File(
+                        getCacheDir(), "IPERC_" + id + ".pdf");
+                java.io.FileOutputStream fos = new java.io.FileOutputStream(archivo);
+                byte[] buffer = new byte[4096];
+                int len;
+                while ((len = is.read(buffer)) != -1) fos.write(buffer, 0, len);
+                fos.close();
+                is.close();
+
+                android.net.Uri uri = androidx.core.content.FileProvider.getUriForFile(
+                        this, getPackageName() + ".provider", archivo);
+
+                android.content.Intent intent = new android.content.Intent(
+                        android.content.Intent.ACTION_VIEW);
+                intent.setDataAndType(uri, "application/pdf");
+                intent.setFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                runOnUiThread(() -> {
+                    try {
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        Toast.makeText(this,
+                                "Instala un lector de PDF",
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+
+            } catch (Exception e) {
+                runOnUiThread(() -> Toast.makeText(this,
+                        "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+        }).start();
+    }
+
     // ---- Adapter ----
     class SupervisorAdapter extends RecyclerView.Adapter<SupervisorAdapter.VH> {
 
@@ -201,11 +256,19 @@ public class SupervisorActivity extends AppCompatActivity {
                 holder.tvEstado.setText(r.optString("estado", "pendiente").toUpperCase());
 
                 boolean esPendiente = "pendiente".equals(r.optString("estado"));
+                boolean esAprobado  = "aprobado".equals(r.optString("estado"));
+
                 holder.btnAprobar.setVisibility(esPendiente ? View.VISIBLE : View.GONE);
                 holder.btnObservar.setVisibility(esPendiente ? View.VISIBLE : View.GONE);
+                holder.btnPdf.setVisibility(esAprobado ? View.VISIBLE : View.GONE);
 
-                holder.btnAprobar.setOnClickListener(v -> aprobar(id));
+                holder.btnAprobar.setOnClickListener(v -> {
+                    Intent intent = new Intent(SupervisorActivity.this, RevisarIpercActivity.class);
+                    intent.putExtra("registro_id", id);
+                    startActivity(intent);
+                });
                 holder.btnObservar.setOnClickListener(v -> observar(id));
+                holder.btnPdf.setOnClickListener(v -> descargarPdf(id));
 
             } catch (Exception e) { /* ignora */ }
         }
@@ -215,7 +278,7 @@ public class SupervisorActivity extends AppCompatActivity {
 
         class VH extends RecyclerView.ViewHolder {
             TextView tvTrabajador, tvArea, tvFecha, tvEstado;
-            Button btnAprobar, btnObservar;
+            Button btnAprobar, btnObservar, btnPdf;
             VH(View v) {
                 super(v);
                 tvTrabajador = v.findViewById(R.id.tvTrabajador);
@@ -224,6 +287,7 @@ public class SupervisorActivity extends AppCompatActivity {
                 tvEstado     = v.findViewById(R.id.tvEstado);
                 btnAprobar   = v.findViewById(R.id.btnAprobar);
                 btnObservar  = v.findViewById(R.id.btnObservar);
+                btnPdf       = v.findViewById(R.id.btnPdf);
             }
         }
     }

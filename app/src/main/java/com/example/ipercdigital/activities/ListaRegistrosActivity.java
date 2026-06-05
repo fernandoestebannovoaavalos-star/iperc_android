@@ -9,7 +9,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,6 +22,9 @@ import com.example.ipercdigital.api.ApiConfig;
 import com.example.ipercdigital.R;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -56,7 +61,7 @@ public class ListaRegistrosActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        cargarRegistros(); // Recarga al volver de crear uno nuevo
+        cargarRegistros();
     }
 
     private void cargarRegistros() {
@@ -105,6 +110,58 @@ public class ListaRegistrosActivity extends AppCompatActivity {
         }).start();
     }
 
+    private void descargarPdf(int id) {
+        SharedPreferences prefs = getSharedPreferences("iperc_prefs", MODE_PRIVATE);
+        String tkn = prefs.getString("token", "");
+        Toast.makeText(this, "Descargando PDF...", Toast.LENGTH_SHORT).show();
+
+        new Thread(() -> {
+            try {
+                URL url = new URL(ApiConfig.BASE_URL + "/api/iperc/pdf/" + id);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Authorization", "Bearer " + tkn);
+                conn.setConnectTimeout(15000);
+                conn.setReadTimeout(30000);
+
+                if (conn.getResponseCode() != 200) {
+                    runOnUiThread(() -> Toast.makeText(this,
+                            "Error al descargar", Toast.LENGTH_SHORT).show());
+                    return;
+                }
+
+                InputStream is = conn.getInputStream();
+                File archivo = new File(getCacheDir(), "IPERC_" + id + ".pdf");
+                FileOutputStream fos = new FileOutputStream(archivo);
+                byte[] buffer = new byte[4096];
+                int len;
+                while ((len = is.read(buffer)) != -1) fos.write(buffer, 0, len);
+                fos.close();
+                is.close();
+
+                android.net.Uri uri = FileProvider.getUriForFile(
+                        this, getPackageName() + ".provider", archivo);
+
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(uri, "application/pdf");
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                runOnUiThread(() -> {
+                    try {
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        Toast.makeText(this,
+                                "Instala un lector de PDF", Toast.LENGTH_LONG).show();
+                    }
+                });
+
+            } catch (Exception e) {
+                runOnUiThread(() -> Toast.makeText(this,
+                        "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+        }).start();
+    }
+
     class RegistroAdapter extends RecyclerView.Adapter<RegistroAdapter.VH> {
 
         @Override
@@ -138,6 +195,14 @@ public class ListaRegistrosActivity extends AppCompatActivity {
                 }
                 holder.tvEstado.setBackgroundColor(color);
 
+                // Botón PDF solo para aprobados
+                boolean aprobado = "aprobado".equals(estado.toLowerCase());
+                holder.btnPdf.setVisibility(aprobado ? View.VISIBLE : View.GONE);
+                if (aprobado) {
+                    int regId = r.optInt("id");
+                    holder.btnPdf.setOnClickListener(v -> descargarPdf(regId));
+                }
+
             } catch (Exception e) { /* ignora */ }
         }
 
@@ -146,12 +211,14 @@ public class ListaRegistrosActivity extends AppCompatActivity {
 
         class VH extends RecyclerView.ViewHolder {
             TextView tvAreaActividad, tvEstado, tvFecha, tvNivelRiesgo;
+            Button btnPdf;
             VH(View v) {
                 super(v);
                 tvAreaActividad = v.findViewById(R.id.tvAreaActividad);
                 tvEstado        = v.findViewById(R.id.tvEstado);
                 tvFecha         = v.findViewById(R.id.tvFecha);
                 tvNivelRiesgo   = v.findViewById(R.id.tvNivelRiesgo);
+                btnPdf          = v.findViewById(R.id.btnPdfRegistro);
             }
         }
     }

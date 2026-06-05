@@ -6,10 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
-
     <application
-
-
         android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -19,22 +16,35 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.IpercDigital">
+
         <activity
             android:name=".activities.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".activities.DashboardActivity"/>
         <activity android:name=".activities.IpercActivity"/>
-        <activity android:name=".activities.ListaIpercActivity"/>
         <activity android:name=".activities.PeligrosActivity"/>
         <activity android:name=".activities.FirmaActivity"/>
         <activity android:name=".activities.ListaRegistrosActivity"/>
         <activity android:name=".activities.SupervisorActivity"/>
+        <activity android:name=".activities.RevisarIpercActivity"/>
+        <activity android:name=".activities.FirmaSupervisorActivity"/>
+        <activity android:name=".activities.CrearUsuarioActivity"/>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+        </provider>
+
     </application>
 
 </manifest>

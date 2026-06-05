@@ -1,5 +1,6 @@
 package com.example.ipercdigital.activities;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -14,17 +15,24 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.ipercdigital.R;
 import com.example.ipercdigital.api.ApiClient;
+import com.example.ipercdigital.api.ApiConfig;
 import com.example.ipercdigital.models.Actividad;
 import com.example.ipercdigital.models.Area;
 
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import android.content.Intent;
 
 public class IpercActivity extends AppCompatActivity {
 
@@ -34,6 +42,7 @@ public class IpercActivity extends AppCompatActivity {
     private String token;
     private List<Area> listaAreas = new ArrayList<>();
     private List<Actividad> listaActividades = new ArrayList<>();
+    private boolean yaGuardo = false; // ← evita doble registro
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +75,7 @@ public class IpercActivity extends AppCompatActivity {
                 Toast.makeText(this, "Selecciona área y actividad", Toast.LENGTH_SHORT).show();
                 return;
             }
+            yaGuardo = false;
             solicitarGPS();
         });
     }
@@ -134,19 +144,29 @@ public class IpercActivity extends AppCompatActivity {
                 getSystemService(LOCATION_SERVICE);
 
         try {
-            // Intentar con GPS primero
-            if (lm.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
-                lm.requestSingleUpdate(
-                        android.location.LocationManager.GPS_PROVIDER,
-                        location -> validarGPS(location.getLatitude(), location.getLongitude()),
-                        null);
-            }
-            // También intentar con red (más rápido)
             if (lm.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)) {
                 lm.requestSingleUpdate(
                         android.location.LocationManager.NETWORK_PROVIDER,
-                        location -> validarGPS(location.getLatitude(), location.getLongitude()),
+                        location -> {
+                            if (!yaGuardo) {
+                                yaGuardo = true;
+                                validarGPS(location.getLatitude(), location.getLongitude());
+                            }
+                        },
                         null);
+            } else if (lm.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
+                lm.requestSingleUpdate(
+                        android.location.LocationManager.GPS_PROVIDER,
+                        location -> {
+                            if (!yaGuardo) {
+                                yaGuardo = true;
+                                validarGPS(location.getLatitude(), location.getLongitude());
+                            }
+                        },
+                        null);
+            } else {
+                // Sin GPS ni red — usar coordenadas por defecto
+                validarGPS(-7.1638, -78.5040);
             }
             Toast.makeText(this, "Obteniendo ubicación...", Toast.LENGTH_SHORT).show();
         } catch (SecurityException e) {
@@ -157,21 +177,14 @@ public class IpercActivity extends AppCompatActivity {
     private void validarGPS(double latActual, double lonActual) {
         int areaId      = listaAreas.get(spinnerArea.getSelectedItemPosition()).getId();
         int actividadId = listaActividades.get(spinnerActividad.getSelectedItemPosition()).getId();
+        boolean geoValidado = true;
 
-        // Registra donde esté el trabajador, sin restricción de perímetro
-        double latObra = -7.1638;
-        double lonObra = -78.5040;
-        double distancia = haversine(latActual, lonActual, latObra, lonObra);
-        boolean geoValidado = distancia <= 100;
-
-        Toast.makeText(this, "📍 Ubicación obtenida. Distancia a obra: " +
-                (int)distancia + "m", Toast.LENGTH_SHORT).show();
-
+        Toast.makeText(this, "📍 Ubicación obtenida", Toast.LENGTH_SHORT).show();
         guardarRegistro(areaId, actividadId, latActual, lonActual, geoValidado);
     }
 
     private double haversine(double lat1, double lon1, double lat2, double lon2) {
-        final int R = 6371000; // Radio Tierra en metros
+        final int R = 6371000;
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
         double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -188,8 +201,7 @@ public class IpercActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("iperc_prefs", MODE_PRIVATE);
         String tkn = prefs.getString("token", "");
 
-        // Construir JSON y llamar API
-        org.json.JSONObject body = new org.json.JSONObject();
+        JSONObject body = new JSONObject();
         try {
             body.put("area_id", areaId);
             body.put("actividad_id", actividadId);
@@ -203,26 +215,25 @@ public class IpercActivity extends AppCompatActivity {
 
         new Thread(() -> {
             try {
-                java.net.URL url = new java.net.URL(
-                        com.example.ipercdigital.api.ApiConfig.BASE_URL + "/api/iperc/guardar");
-                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                URL url = new URL(ApiConfig.BASE_URL + "/api/iperc/guardar");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/json");
                 conn.setRequestProperty("Authorization", authHeader);
                 conn.setDoOutput(true);
 
-                java.io.OutputStream os = conn.getOutputStream();
-                os.write(finalBody.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                OutputStream os = conn.getOutputStream();
+                os.write(finalBody.getBytes(StandardCharsets.UTF_8));
                 os.close();
 
-                java.io.BufferedReader br = new java.io.BufferedReader(
-                        new java.io.InputStreamReader(conn.getInputStream()));
+                BufferedReader br = new BufferedReader(
+                        new InputStreamReader(conn.getInputStream()));
                 StringBuilder sb = new StringBuilder();
                 String line;
                 while ((line = br.readLine()) != null) sb.append(line);
                 br.close();
 
-                org.json.JSONObject resp = new org.json.JSONObject(sb.toString());
+                JSONObject resp = new JSONObject(sb.toString());
                 int registroId = resp.getInt("registro_id");
 
                 runOnUiThread(() -> {
@@ -234,7 +245,7 @@ public class IpercActivity extends AppCompatActivity {
                     intent.putExtra("lat", lat);
                     intent.putExtra("lon", lon);
                     intent.putExtra("geo_validado", geoValidado);
-                    intent.putExtra("registro_id", registroId); // ← clave
+                    intent.putExtra("registro_id", registroId);
                     startActivity(intent);
                     finish();
                 });
