@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F5F5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#1F3864"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Gestión de Usuarios"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+        <Button
+            android:id="@+id/btnAgregarUsuario"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="+ Nuevo"
+            android:backgroundTint="#FFFFFF"
+            android:textColor="#1F3864"
+            android:textSize="12sp"/>
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressUsuarios"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="32dp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/tvVacioUsuarios"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No hay usuarios registrados"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:textColor="#9E9E9E"
+        android:layout_marginTop="64dp"
+        android:visibility="gone"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerUsuarios"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp"
+        android:clipToPadding="false"/>
+
+</LinearLayout>

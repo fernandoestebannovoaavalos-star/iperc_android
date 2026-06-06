@@ -48,11 +48,11 @@ public class DashboardActivity extends AppCompatActivity {
             btnSupervisor.setVisibility(View.GONE);
         }
 
-        // Crear usuario solo para admin
+        // Gestión de usuarios solo para admin
         if (rol.equals("admin")) {
             btnCrearUsuario.setVisibility(View.VISIBLE);
             btnCrearUsuario.setOnClickListener(v ->
-                    startActivity(new Intent(this, CrearUsuarioActivity.class)));
+                    startActivity(new Intent(this, ListaUsuariosActivity.class)));
         } else {
             btnCrearUsuario.setVisibility(View.GONE);
         }

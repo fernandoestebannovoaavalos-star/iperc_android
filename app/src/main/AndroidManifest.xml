@@ -35,6 +35,9 @@
         <activity android:name=".activities.RevisarIpercActivity"/>
         <activity android:name=".activities.FirmaSupervisorActivity"/>
         <activity android:name=".activities.CrearUsuarioActivity"/>
+        <activity android:name=".activities.ListaUsuariosActivity"/>
+        <activity android:name=".activities.CambiarClaveActivity"/>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"

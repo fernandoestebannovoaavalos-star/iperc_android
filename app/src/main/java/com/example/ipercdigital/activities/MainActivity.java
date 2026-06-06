@@ -64,14 +64,20 @@ public class MainActivity extends AppCompatActivity {
                                 .putString("token", body.getToken())
                                 .putString("rol", body.getRol())
                                 .putString("nombre", body.getNombre())
+                                .putBoolean("debe_cambiar_clave", body.isDebe_cambiar_clave())
                                 .apply();
 
                         Toast.makeText(MainActivity.this,
                                 "Bienvenido " + body.getNombre(), Toast.LENGTH_SHORT).show();
 
-                        // Ir al Dashboard
-                        startActivity(new Intent(MainActivity.this, DashboardActivity.class));
+                        // Verificar si debe cambiar clave
+                        if (body.isDebe_cambiar_clave()) {
+                            startActivity(new Intent(MainActivity.this, CambiarClaveActivity.class));
+                        } else {
+                            startActivity(new Intent(MainActivity.this, DashboardActivity.class));
+                        }
                         finish();
+
                     } else {
                         Toast.makeText(MainActivity.this,
                                 "DNI o contraseña incorrectos", Toast.LENGTH_SHORT).show();

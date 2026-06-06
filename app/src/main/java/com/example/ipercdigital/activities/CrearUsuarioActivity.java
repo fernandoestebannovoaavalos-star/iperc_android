@@ -103,6 +103,7 @@ public class CrearUsuarioActivity extends AppCompatActivity {
                 body.put("password", password);
                 body.put("rol", rol);
                 body.put("email", email.isEmpty() ? JSONObject.NULL : email);
+                body.put("debe_cambiar_clave", true);
 
                 byte[] data = body.toString().getBytes(StandardCharsets.UTF_8);
                 OutputStream os = conn.getOutputStream();
