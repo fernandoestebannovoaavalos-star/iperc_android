@@ -39,6 +39,11 @@
         <activity android:name=".activities.CrearUsuarioActivity"/>
         <activity android:name=".activities.ListaUsuariosActivity"/>
         <activity android:name=".activities.CambiarClaveActivity"/>
+        <activity android:name=".activities.ReportesActivity"/>
+        <activity android:name=".activities.EstadisticasActivity"/>
+        <activity android:name=".activities.ObrasActivity"/>
+
+
 
         <provider
             android:name="androidx.core.content.FileProvider"

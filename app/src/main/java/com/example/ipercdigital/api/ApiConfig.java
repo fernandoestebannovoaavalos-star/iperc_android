@@ -11,7 +11,7 @@ public class ApiConfig {
     private static final String URL_NGROK      = "https://partake-legibly-overlap.ngrok-free.dev";
 
     // ← Cambia solo esta línea según dónde estés
-    public static final String BASE_URL = URL_UNIVERSIDAD;
+    public static final String BASE_URL = URL_CASA + "/";
 
     public static HttpURLConnection getConnection(String endpoint) throws Exception {
         URL url = new URL(BASE_URL + endpoint);

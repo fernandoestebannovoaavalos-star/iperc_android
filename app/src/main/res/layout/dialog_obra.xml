@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/etObraNombre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nombre de la obra *"
+        android:inputType="textCapWords"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/etObraEmpresa"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Empresa"
+        android:inputType="textCapWords"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/etObraDireccion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Dirección"
+        android:inputType="textCapSentences"
+        android:layout_marginBottom="8dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/etObraLat"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Latitud"
+            android:inputType="numberDecimal|numberSigned"
+            android:layout_marginEnd="4dp"/>
+
+        <EditText
+            android:id="@+id/etObraLon"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Longitud"
+            android:inputType="numberDecimal|numberSigned"
+            android:layout_marginStart="4dp"/>
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/etObraRadio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Radio GPS en metros (default: 100)"
+        android:inputType="number"
+        android:layout_marginTop="8dp"/>
+
+</LinearLayout>

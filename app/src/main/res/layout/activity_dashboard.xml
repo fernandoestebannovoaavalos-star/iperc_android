@@ -1,95 +1,181 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
     android:background="#F5F5F5">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="IPERC Digital"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="#F97316"
-        android:layout_marginBottom="4dp"/>
-
-    <TextView
-        android:id="@+id/tvBienvenido"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:textColor="#333333"
-        android:layout_marginBottom="4dp"/>
-
-    <TextView
-        android:id="@+id/tvRol"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textColor="#666666"
-        android:layout_marginBottom="40dp"/>
-
-    <Button
-        android:id="@+id/btnNuevoIperc"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Nuevo Registro IPERC"
-        android:backgroundTint="#F97316"
-        android:textColor="@android:color/white"
-        android:padding="16dp"
-        android:layout_marginBottom="16dp"/>
+        android:orientation="vertical"
+        android:padding="24dp">
 
-    <Button
-        android:id="@+id/btnListaIperc"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Ver Registros IPERC"
-        android:backgroundTint="#1E40AF"
-        android:textColor="@android:color/white"
-        android:padding="16dp"
-        android:layout_marginBottom="16dp"/>
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#1B5E20"
+            android:padding="20dp"
+            android:layout_marginBottom="24dp">
 
-    <Button
-        android:id="@+id/btnSupervisor"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Panel Supervisor"
-        android:backgroundTint="#1B5E20"
-        android:textColor="@android:color/white"
-        android:padding="16dp"
-        android:layout_marginBottom="16dp"
-        android:visibility="gone"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="IPERC Digital"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"/>
 
-    <Button
-        android:id="@+id/btnCrearUsuario"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Gestión de Usuarios"
-        android:backgroundTint="#1F3864"
-        android:textColor="#FFFFFF"
-        android:padding="16dp"
-        android:layout_marginBottom="16dp"
-        android:visibility="gone"/>
+            <TextView
+                android:id="@+id/tvBienvenido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="#A5D6A7"
+                android:layout_marginTop="4dp"/>
 
-    <Button
-        android:id="@+id/btnMiPerfil"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="👤 Mi Perfil"
-        android:backgroundTint="#6B7280"
-        android:textColor="#FFFFFF"
-        android:padding="16dp"
-        android:layout_marginBottom="16dp"/>
+            <TextView
+                android:id="@+id/tvRol"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textColor="#81C784"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
 
-    <Button
-        android:id="@+id/btnCerrarSesion"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Cerrar Sesión"
-        android:backgroundTint="#DC2626"
-        android:textColor="@android:color/white"
-        android:padding="16dp"/>
+        <!-- Sección Trabajador -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="REGISTRO"
+            android:textSize="11sp"
+            android:textColor="#9E9E9E"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
 
-</LinearLayout>
+        <Button
+            android:id="@+id/btnNuevoIperc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="➕ Nuevo Registro IPERC"
+            android:backgroundTint="#F97316"
+            android:textColor="#FFFFFF"
+            android:padding="14dp"
+            android:layout_marginBottom="10dp"/>
+
+        <Button
+            android:id="@+id/btnListaIperc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📋 Mis Registros IPERC"
+            android:backgroundTint="#1E40AF"
+            android:textColor="#FFFFFF"
+            android:padding="14dp"
+            android:layout_marginBottom="10dp"/>
+
+        <Button
+            android:id="@+id/btnReportes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📊 Reportes"
+            android:backgroundTint="#0288D1"
+            android:textColor="#FFFFFF"
+            android:padding="14dp"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- Sección Supervisor -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SUPERVISIÓN"
+            android:textSize="11sp"
+            android:textColor="#9E9E9E"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btnSupervisor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🔍 Panel Supervisor"
+            android:backgroundTint="#1B5E20"
+            android:textColor="#FFFFFF"
+            android:padding="14dp"
+            android:layout_marginBottom="10dp"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/btnEstadisticas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📈 Estadísticas"
+            android:backgroundTint="#6A1B9A"
+            android:textColor="#FFFFFF"
+            android:padding="14dp"
+            android:layout_marginBottom="24dp"
+            android:visibility="gone"/>
+
+        <!-- Sección Admin -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ADMINISTRACIÓN"
+            android:textSize="11sp"
+            android:textColor="#9E9E9E"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btnCrearUsuario"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="👥 Gestión de Usuarios"
+            android:backgroundTint="#1F3864"
+            android:textColor="#FFFFFF"
+            android:padding="14dp"
+            android:layout_marginBottom="10dp"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/btnObras"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🏗 Gestión de Obras"
+            android:backgroundTint="#4E342E"
+            android:textColor="#FFFFFF"
+            android:padding="14dp"
+            android:layout_marginBottom="24dp"
+            android:visibility="gone"/>
+
+        <!-- Sección Cuenta -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CUENTA"
+            android:textSize="11sp"
+            android:textColor="#9E9E9E"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btnMiPerfil"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="👤 Mi Perfil"
+            android:backgroundTint="#6B7280"
+            android:textColor="#FFFFFF"
+            android:padding="14dp"
+            android:layout_marginBottom="10dp"/>
+
+        <Button
+            android:id="@+id/btnCerrarSesion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🚪 Cerrar Sesión"
+            android:backgroundTint="#DC2626"
+            android:textColor="#FFFFFF"
+            android:padding="14dp"/>
+
+    </LinearLayout>
+</ScrollView>
