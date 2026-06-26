@@ -84,6 +84,17 @@
         </LinearLayout>
 
         <Button
+            android:id="@+id/btnResetearClave"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:text="🔑 Resetear Clave"
+            android:backgroundTint="#F97316"
+            android:textColor="#FFFFFF"
+            android:textSize="11sp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp"/>
+
+        <Button
             android:id="@+id/btnToggleUsuario"
             android:layout_width="wrap_content"
             android:layout_height="32dp"

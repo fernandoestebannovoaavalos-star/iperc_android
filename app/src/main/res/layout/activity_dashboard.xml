@@ -66,12 +66,22 @@
         android:id="@+id/btnCrearUsuario"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Crear Usuario"
+        android:text="Gestión de Usuarios"
         android:backgroundTint="#1F3864"
         android:textColor="#FFFFFF"
         android:padding="16dp"
         android:layout_marginBottom="16dp"
         android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/btnMiPerfil"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="👤 Mi Perfil"
+        android:backgroundTint="#6B7280"
+        android:textColor="#FFFFFF"
+        android:padding="16dp"
+        android:layout_marginBottom="16dp"/>
 
     <Button
         android:id="@+id/btnCerrarSesion"

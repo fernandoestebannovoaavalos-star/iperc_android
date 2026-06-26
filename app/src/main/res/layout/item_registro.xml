@@ -70,5 +70,17 @@
             android:textSize="12sp"
             android:visibility="gone"/>
 
+        <Button
+            android:id="@+id/btnVerObservacion"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_gravity="end"
+            android:layout_marginTop="8dp"
+            android:text="📋 Ver Observación"
+            android:backgroundTint="#F44336"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:visibility="gone"/>
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>

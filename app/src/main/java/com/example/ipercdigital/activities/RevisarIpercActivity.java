@@ -115,12 +115,16 @@ public class RevisarIpercActivity extends AppCompatActivity {
 
             JSONArray adicionales = data.optJSONArray("adicionales");
             if (adicionales != null && adicionales.length() > 0) {
+                agregarSeparador();
                 agregarTexto("⚠ PELIGROS ADICIONALES", 15, true);
                 for (int i = 0; i < adicionales.length(); i++) {
                     JSONObject p = adicionales.getJSONObject(i);
                     agregarTexto("• " + p.optString("descripcion"), 14, false);
-                    agregarTexto("  " + p.optString("nivel_sin") +
-                            " → " + p.optString("nivel_con"), 13, false);
+                    agregarTexto("  Riesgo: " + p.optString("riesgo"), 13, false);
+                    agregarTexto("  Sin control: " + p.optString("nivel_sin") +
+                            " → Con control: " + p.optString("nivel_con"), 13, false);
+                    agregarTexto("  Control: " + p.optString("medidas"), 13, false);
+                    agregarSeparador();
                 }
             }
 

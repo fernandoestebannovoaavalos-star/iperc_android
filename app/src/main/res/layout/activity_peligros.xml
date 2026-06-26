@@ -12,7 +12,7 @@
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="#F97316"
-        android:padding="24dp"/>
+        android:padding="16dp"/>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -20,12 +20,55 @@
         android:layout_weight="1">
 
         <LinearLayout
-            android:id="@+id/contenedorPeligros"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"/>
+            android:padding="16dp">
 
+            <!-- Peligros base -->
+            <LinearLayout
+                android:id="@+id/contenedorPeligros"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"/>
+
+            <!-- Separador -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#DDDDDD"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Título peligros adicionales -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="⚠ Peligros Adicionales en Campo"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#F57F17"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Contenedor adicionales -->
+            <LinearLayout
+                android:id="@+id/contenedorAdicionales"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"/>
+
+            <!-- Botón agregar adicional -->
+            <Button
+                android:id="@+id/btnAgregarAdicional"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:text="+ Agregar Peligro Adicional"
+                android:backgroundTint="#FFF8E1"
+                android:textColor="#F57F17"
+                android:textSize="14sp"
+                android:layout_marginTop="8dp"/>
+
+        </LinearLayout>
     </ScrollView>
 
     <Button

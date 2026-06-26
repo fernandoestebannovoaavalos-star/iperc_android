@@ -1,5 +1,6 @@
 package com.example.ipercdigital.activities;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -51,9 +52,8 @@ public class ListaRegistrosActivity extends AppCompatActivity {
 
         recycler.setLayoutManager(new LinearLayoutManager(this));
 
-        btnNuevo.setOnClickListener(v -> {
-            startActivity(new Intent(this, IpercActivity.class));
-        });
+        btnNuevo.setOnClickListener(v ->
+                startActivity(new Intent(this, IpercActivity.class)));
 
         cargarRegistros();
     }
@@ -108,6 +108,15 @@ public class ListaRegistrosActivity extends AppCompatActivity {
                 });
             }
         }).start();
+    }
+
+    private void mostrarObservacion(String observacion) {
+        new AlertDialog.Builder(this)
+                .setTitle("📋 Observación del Supervisor")
+                .setMessage(observacion.isEmpty() ?
+                        "El supervisor no dejó comentarios." : observacion)
+                .setPositiveButton("Cerrar", null)
+                .show();
     }
 
     private void descargarPdf(int id) {
@@ -175,11 +184,12 @@ public class ListaRegistrosActivity extends AppCompatActivity {
         public void onBindViewHolder(VH holder, int position) {
             try {
                 JSONObject r = registros.get(position);
-                String area = r.optString("area", "—");
-                String actividad = r.optString("actividad", "—");
-                String estado = r.optString("estado", "pendiente");
-                String fecha = r.optString("fecha", "");
-                String nivel = r.optString("nivel_riesgo", "");
+                String area        = r.optString("area", "—");
+                String actividad   = r.optString("actividad", "—");
+                String estado      = r.optString("estado", "pendiente");
+                String fecha       = r.optString("fecha", "");
+                String nivel       = r.optString("nivel_riesgo", "");
+                String observacion = r.optString("observacion", "");
 
                 holder.tvAreaActividad.setText(area + " › " + actividad);
                 holder.tvFecha.setText("📅 " + fecha);
@@ -196,11 +206,20 @@ public class ListaRegistrosActivity extends AppCompatActivity {
                 holder.tvEstado.setBackgroundColor(color);
 
                 // Botón PDF solo para aprobados
-                boolean aprobado = "aprobado".equals(estado.toLowerCase());
+                boolean aprobado   = "aprobado".equals(estado.toLowerCase());
+                boolean observado  = "observado".equals(estado.toLowerCase());
+
                 holder.btnPdf.setVisibility(aprobado ? View.VISIBLE : View.GONE);
+                holder.btnObservacion.setVisibility(observado ? View.VISIBLE : View.GONE);
+
                 if (aprobado) {
                     int regId = r.optInt("id");
                     holder.btnPdf.setOnClickListener(v -> descargarPdf(regId));
+                }
+
+                if (observado) {
+                    holder.btnObservacion.setOnClickListener(v ->
+                            mostrarObservacion(observacion));
                 }
 
             } catch (Exception e) { /* ignora */ }
@@ -211,7 +230,7 @@ public class ListaRegistrosActivity extends AppCompatActivity {
 
         class VH extends RecyclerView.ViewHolder {
             TextView tvAreaActividad, tvEstado, tvFecha, tvNivelRiesgo;
-            Button btnPdf;
+            Button btnPdf, btnObservacion;
             VH(View v) {
                 super(v);
                 tvAreaActividad = v.findViewById(R.id.tvAreaActividad);
@@ -219,6 +238,7 @@ public class ListaRegistrosActivity extends AppCompatActivity {
                 tvFecha         = v.findViewById(R.id.tvFecha);
                 tvNivelRiesgo   = v.findViewById(R.id.tvNivelRiesgo);
                 btnPdf          = v.findViewById(R.id.btnPdfRegistro);
+                btnObservacion  = v.findViewById(R.id.btnVerObservacion);
             }
         }
     }

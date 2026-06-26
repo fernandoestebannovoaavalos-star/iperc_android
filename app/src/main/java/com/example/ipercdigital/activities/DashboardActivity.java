@@ -29,9 +29,13 @@ public class DashboardActivity extends AppCompatActivity {
         Button btnSupervisor     = findViewById(R.id.btnSupervisor);
         Button btnCrearUsuario   = findViewById(R.id.btnCrearUsuario);
         Button btnCerrarSesion   = findViewById(R.id.btnCerrarSesion);
+        Button btnMiPerfil = findViewById(R.id.btnMiPerfil);
 
         tvBienvenido.setText("Bienvenido, " + nombre);
         tvRol.setText("Rol: " + rol);
+
+        btnMiPerfil.setOnClickListener(v ->
+                startActivity(new Intent(this, PerfilActivity.class)));
 
         btnNuevoIperc.setOnClickListener(v ->
                 startActivity(new Intent(this, IpercActivity.class)));
