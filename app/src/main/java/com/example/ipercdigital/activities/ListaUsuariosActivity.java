@@ -4,14 +4,10 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ipercdigital.R;
+import com.example.ipercdigital.adapters.UsuarioAdapter;
 import com.example.ipercdigital.api.ApiConfig;
 
 import org.json.JSONArray;
@@ -33,7 +30,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListaUsuariosActivity extends AppCompatActivity {
+public class ListaUsuariosActivity extends AppCompatActivity
+        implements UsuarioAdapter.OnUsuarioActionListener {
 
     RecyclerView recycler;
     ProgressBar progress;
@@ -59,8 +57,6 @@ public class ListaUsuariosActivity extends AppCompatActivity {
 
         btnAgregar.setOnClickListener(v ->
                 startActivity(new Intent(this, CrearUsuarioActivity.class)));
-
-        cargarUsuarios();
     }
 
     @Override
@@ -98,20 +94,22 @@ public class ListaUsuariosActivity extends AppCompatActivity {
                     if (usuarios.isEmpty()) {
                         tvVacio.setVisibility(View.VISIBLE);
                     } else {
-                        recycler.setAdapter(new UsuarioAdapter());
+                        recycler.setAdapter(new UsuarioAdapter(this, usuarios, this));
                     }
                 });
 
             } catch (Exception e) {
                 runOnUiThread(() -> {
                     progress.setVisibility(View.GONE);
-                    Toast.makeText(this, "Error al cargar usuarios", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Error al cargar usuarios",
+                            Toast.LENGTH_SHORT).show();
                 });
             }
         }).start();
     }
 
-    private void cambiarRol(int id, String nuevoRol) {
+    @Override
+    public void onCambiarRol(int id, String nuevoRol) {
         new Thread(() -> {
             try {
                 URL url = new URL(ApiConfig.BASE_URL + "/api/admin/cambiar_rol/" + id);
@@ -123,18 +121,19 @@ public class ListaUsuariosActivity extends AppCompatActivity {
 
                 JSONObject body = new JSONObject();
                 body.put("rol", nuevoRol);
-                byte[] data = body.toString().getBytes(StandardCharsets.UTF_8);
                 OutputStream os = conn.getOutputStream();
-                os.write(data);
+                os.write(body.toString().getBytes(StandardCharsets.UTF_8));
                 os.close();
 
                 int code = conn.getResponseCode();
                 runOnUiThread(() -> {
                     if (code == 200) {
-                        Toast.makeText(this, "✅ Rol actualizado", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "✅ Rol actualizado",
+                                Toast.LENGTH_SHORT).show();
                         cargarUsuarios();
                     } else {
-                        Toast.makeText(this, "Error al cambiar rol", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Error al cambiar rol",
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
             } catch (Exception e) {
@@ -144,7 +143,8 @@ public class ListaUsuariosActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void toggleUsuario(int id, boolean activo) {
+    @Override
+    public void onToggle(int id, boolean activo) {
         new Thread(() -> {
             try {
                 URL url = new URL(ApiConfig.BASE_URL + "/api/admin/toggle_usuario/" + id);
@@ -162,7 +162,8 @@ public class ListaUsuariosActivity extends AppCompatActivity {
                         Toast.makeText(this, "✅ " + msg, Toast.LENGTH_SHORT).show();
                         cargarUsuarios();
                     } else {
-                        Toast.makeText(this, "Error al cambiar estado", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Error al cambiar estado",
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
             } catch (Exception e) {
@@ -172,29 +173,29 @@ public class ListaUsuariosActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void mostrarDialogoResetear(int id, String nombre) {
-        runOnUiThread(() -> {
-            EditText etClave = new EditText(this);
-            etClave.setHint("Nueva contraseña temporal (mín. 8 caracteres)");
-            etClave.setInputType(android.text.InputType.TYPE_CLASS_TEXT |
-                    android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
-            etClave.setPadding(40, 20, 40, 20);
+    @Override
+    public void onResetear(int id, String nombre) {
+        EditText etClave = new EditText(this);
+        etClave.setHint("Nueva contraseña (mín. 8 caracteres)");
+        etClave.setInputType(android.text.InputType.TYPE_CLASS_TEXT |
+                android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        etClave.setPadding(40, 20, 40, 20);
 
-            new AlertDialog.Builder(this)
-                    .setTitle("Resetear contraseña")
-                    .setMessage("Usuario: " + nombre)
-                    .setView(etClave)
-                    .setPositiveButton("Resetear", (dialog, which) -> {
-                        String nuevaClave = etClave.getText().toString().trim();
-                        if (nuevaClave.length() < 8) {
-                            Toast.makeText(this, "Mínimo 8 caracteres", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        resetearClave(id, nuevaClave);
-                    })
-                    .setNegativeButton("Cancelar", null)
-                    .show();
-        });
+        new AlertDialog.Builder(this)
+                .setTitle("Resetear contraseña")
+                .setMessage("Usuario: " + nombre)
+                .setView(etClave)
+                .setPositiveButton("Resetear", (dialog, which) -> {
+                    String nuevaClave = etClave.getText().toString().trim();
+                    if (nuevaClave.length() < 8) {
+                        Toast.makeText(this, "Mínimo 8 caracteres",
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    resetearClave(id, nuevaClave);
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
     }
 
     private void resetearClave(int id, String nuevaClave) {
@@ -209,9 +210,8 @@ public class ListaUsuariosActivity extends AppCompatActivity {
 
                 JSONObject body = new JSONObject();
                 body.put("nueva_clave", nuevaClave);
-                byte[] data = body.toString().getBytes(StandardCharsets.UTF_8);
                 OutputStream os = conn.getOutputStream();
-                os.write(data);
+                os.write(body.toString().getBytes(StandardCharsets.UTF_8));
                 os.close();
 
                 int code = conn.getResponseCode();
@@ -237,85 +237,5 @@ public class ListaUsuariosActivity extends AppCompatActivity {
                         "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
-    }
-
-    class UsuarioAdapter extends RecyclerView.Adapter<UsuarioAdapter.VH> {
-
-        String[] roles = {"trabajador", "supervisor", "admin"};
-
-        @Override
-        public VH onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_usuario, parent, false);
-            return new VH(v);
-        }
-
-        @Override
-        public void onBindViewHolder(VH holder, int position) {
-            try {
-                JSONObject u = usuarios.get(position);
-                int id          = u.optInt("id");
-                String nombre   = u.optString("nombre") + " " + u.optString("apellido");
-                String dni      = "DNI: " + u.optString("dni");
-                String rol      = u.optString("rol", "trabajador");
-                boolean activo  = u.optBoolean("activo", true);
-
-                holder.tvNombre.setText(nombre);
-                holder.tvDni.setText(dni);
-                holder.tvEstado.setText(activo ? "ACTIVO" : "INACTIVO");
-                holder.tvEstado.setBackgroundColor(activo ? 0xFF4CAF50 : 0xFF9E9E9E);
-
-                // Spinner de rol
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                        ListaUsuariosActivity.this,
-                        android.R.layout.simple_spinner_item, roles);
-                adapter.setDropDownViewResource(
-                        android.R.layout.simple_spinner_dropdown_item);
-                holder.spinnerRol.setAdapter(adapter);
-
-                // Seleccionar rol actual
-                for (int i = 0; i < roles.length; i++) {
-                    if (roles[i].equals(rol)) {
-                        holder.spinnerRol.setSelection(i);
-                        break;
-                    }
-                }
-
-                // Botón cambiar rol
-                holder.btnCambiarRol.setOnClickListener(v -> {
-                    String nuevoRol = holder.spinnerRol.getSelectedItem().toString();
-                    cambiarRol(id, nuevoRol);
-                });
-
-                // Botón resetear clave
-                holder.btnResetear.setOnClickListener(v ->
-                        mostrarDialogoResetear(id, nombre));
-
-                // Botón activar/desactivar
-                holder.btnToggle.setText(activo ? "Desactivar" : "Activar");
-                holder.btnToggle.setBackgroundColor(activo ? 0xFFF44336 : 0xFF4CAF50);
-                holder.btnToggle.setOnClickListener(v -> toggleUsuario(id, activo));
-
-            } catch (Exception e) { e.printStackTrace(); }
-        }
-
-        @Override
-        public int getItemCount() { return usuarios.size(); }
-
-        class VH extends RecyclerView.ViewHolder {
-            TextView tvNombre, tvDni, tvEstado;
-            Spinner spinnerRol;
-            Button btnCambiarRol, btnToggle, btnResetear;
-            VH(View v) {
-                super(v);
-                tvNombre      = v.findViewById(R.id.tvNombreUsuario);
-                tvDni         = v.findViewById(R.id.tvDniUsuario);
-                tvEstado      = v.findViewById(R.id.tvEstadoUsuario);
-                spinnerRol    = v.findViewById(R.id.spinnerRolUsuario);
-                btnCambiarRol = v.findViewById(R.id.btnCambiarRol);
-                btnToggle     = v.findViewById(R.id.btnToggleUsuario);
-                btnResetear   = v.findViewById(R.id.btnResetearClave);
-            }
-        }
     }
 }

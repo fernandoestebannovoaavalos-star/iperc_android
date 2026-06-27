@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -16,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ipercdigital.R;
+import com.example.ipercdigital.adapters.ObrasAdapter;
 import com.example.ipercdigital.api.ApiConfig;
 
 import org.json.JSONArray;
@@ -30,7 +30,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ObrasActivity extends AppCompatActivity {
+public class ObrasActivity extends AppCompatActivity
+        implements ObrasAdapter.OnObraActionListener {
 
     RecyclerView recycler;
     ProgressBar progress;
@@ -55,7 +56,6 @@ public class ObrasActivity extends AppCompatActivity {
         token = prefs.getString("token", "");
 
         btnNuevaObra.setOnClickListener(v -> mostrarDialogoNuevaObra());
-        cargarObras();
     }
 
     @Override
@@ -95,14 +95,15 @@ public class ObrasActivity extends AppCompatActivity {
                         recycler.setAdapter(null);
                     } else {
                         tvVacio.setVisibility(View.GONE);
-                        recycler.setAdapter(new ObrasAdapter());
+                        recycler.setAdapter(new ObrasAdapter(this, obras, this));
                     }
                 });
 
             } catch (Exception e) {
                 runOnUiThread(() -> {
                     progress.setVisibility(View.GONE);
-                    Toast.makeText(this, "Error al cargar obras", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Error al cargar obras",
+                            Toast.LENGTH_SHORT).show();
                 });
             }
         }).start();
@@ -129,20 +130,19 @@ public class ObrasActivity extends AppCompatActivity {
                                 Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    crearObra(
-                            nombre,
+                    crearObra(nombre,
                             etEmpresa.getText().toString().trim(),
                             etDireccion.getText().toString().trim(),
                             etLat.getText().toString().trim(),
                             etLon.getText().toString().trim(),
-                            etRadio.getText().toString().trim()
-                    );
+                            etRadio.getText().toString().trim());
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
     }
 
-    private void mostrarDialogoEditarObra(JSONObject obra) {
+    @Override
+    public void onEditar(JSONObject obra) {
         try {
             View form = LayoutInflater.from(this)
                     .inflate(R.layout.dialog_obra, null);
@@ -168,21 +168,48 @@ public class ObrasActivity extends AppCompatActivity {
             new AlertDialog.Builder(this)
                     .setTitle("Editar Obra")
                     .setView(form)
-                    .setPositiveButton("Guardar", (dialog, which) -> {
-                        editarObra(id,
-                                etNombre.getText().toString().trim(),
-                                etEmpresa.getText().toString().trim(),
-                                etDireccion.getText().toString().trim(),
-                                etLat.getText().toString().trim(),
-                                etLon.getText().toString().trim(),
-                                etRadio.getText().toString().trim()
-                        );
-                    })
+                    .setPositiveButton("Guardar", (dialog, which) ->
+                            editarObra(id,
+                                    etNombre.getText().toString().trim(),
+                                    etEmpresa.getText().toString().trim(),
+                                    etDireccion.getText().toString().trim(),
+                                    etLat.getText().toString().trim(),
+                                    etLon.getText().toString().trim(),
+                                    etRadio.getText().toString().trim()))
                     .setNegativeButton("Cancelar", null)
                     .show();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onToggle(int id, boolean activo) {
+        new Thread(() -> {
+            try {
+                URL url = new URL(ApiConfig.BASE_URL + "/api/admin/obras/toggle/" + id);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Authorization", "Bearer " + token);
+                conn.setDoOutput(true);
+                conn.getOutputStream().close();
+
+                int code = conn.getResponseCode();
+                runOnUiThread(() -> {
+                    if (code == 200) {
+                        String msg = activo ? "Obra desactivada" : "Obra activada";
+                        Toast.makeText(this, "✅ " + msg, Toast.LENGTH_SHORT).show();
+                        cargarObras();
+                    } else {
+                        Toast.makeText(this, "Error al cambiar estado",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> Toast.makeText(this,
+                        "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+        }).start();
     }
 
     private void crearObra(String nombre, String empresa, String direccion,
@@ -214,7 +241,8 @@ public class ObrasActivity extends AppCompatActivity {
                         Toast.makeText(this, "✅ Obra creada", Toast.LENGTH_SHORT).show();
                         cargarObras();
                     } else {
-                        Toast.makeText(this, "Error al crear obra", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Error al crear obra",
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
             } catch (Exception e) {
@@ -250,10 +278,12 @@ public class ObrasActivity extends AppCompatActivity {
                 int code = conn.getResponseCode();
                 runOnUiThread(() -> {
                     if (code == 200) {
-                        Toast.makeText(this, "✅ Obra actualizada", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "✅ Obra actualizada",
+                                Toast.LENGTH_SHORT).show();
                         cargarObras();
                     } else {
-                        Toast.makeText(this, "Error al editar obra", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Error al editar obra",
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
             } catch (Exception e) {
@@ -261,82 +291,5 @@ public class ObrasActivity extends AppCompatActivity {
                         "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }).start();
-    }
-
-    private void toggleObra(int id, boolean activo) {
-        new Thread(() -> {
-            try {
-                URL url = new URL(ApiConfig.BASE_URL + "/api/admin/obras/toggle/" + id);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Authorization", "Bearer " + token);
-                conn.setDoOutput(true);
-                conn.getOutputStream().close();
-
-                int code = conn.getResponseCode();
-                runOnUiThread(() -> {
-                    if (code == 200) {
-                        String msg = activo ? "Obra desactivada" : "Obra activada";
-                        Toast.makeText(this, "✅ " + msg, Toast.LENGTH_SHORT).show();
-                        cargarObras();
-                    } else {
-                        Toast.makeText(this, "Error al cambiar estado", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            } catch (Exception e) {
-                runOnUiThread(() -> Toast.makeText(this,
-                        "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-            }
-        }).start();
-    }
-
-    class ObrasAdapter extends RecyclerView.Adapter<ObrasAdapter.VH> {
-
-        @Override
-        public VH onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_obra, parent, false);
-            return new VH(v);
-        }
-
-        @Override
-        public void onBindViewHolder(VH holder, int position) {
-            try {
-                JSONObject o = obras.get(position);
-                int id       = o.optInt("id");
-                boolean activo = o.optBoolean("activo", true);
-
-                holder.tvNombre.setText("🏗 " + o.optString("nombre", "—"));
-                holder.tvEmpresa.setText("🏢 " + o.optString("empresa", "—"));
-                holder.tvDireccion.setText("📍 " + o.optString("direccion", "—"));
-                holder.tvRadio.setText("📡 Radio: " + o.optInt("radio", 100) + "m");
-                holder.tvEstado.setText(activo ? "ACTIVA" : "INACTIVA");
-                holder.tvEstado.setBackgroundColor(activo ? 0xFF4CAF50 : 0xFF9E9E9E);
-
-                holder.btnEditar.setOnClickListener(v -> mostrarDialogoEditarObra(o));
-                holder.btnToggle.setText(activo ? "Desactivar" : "Activar");
-                holder.btnToggle.setBackgroundColor(activo ? 0xFFF44336 : 0xFF4CAF50);
-                holder.btnToggle.setOnClickListener(v -> toggleObra(id, activo));
-
-            } catch (Exception e) { e.printStackTrace(); }
-        }
-
-        @Override
-        public int getItemCount() { return obras.size(); }
-
-        class VH extends RecyclerView.ViewHolder {
-            TextView tvNombre, tvEmpresa, tvDireccion, tvRadio, tvEstado;
-            Button btnEditar, btnToggle;
-            VH(View v) {
-                super(v);
-                tvNombre    = v.findViewById(R.id.tvObraNombre);
-                tvEmpresa   = v.findViewById(R.id.tvObraEmpresa);
-                tvDireccion = v.findViewById(R.id.tvObraDireccion);
-                tvRadio     = v.findViewById(R.id.tvObraRadio);
-                tvEstado    = v.findViewById(R.id.tvObraEstado);
-                btnEditar   = v.findViewById(R.id.btnEditarObra);
-                btnToggle   = v.findViewById(R.id.btnToggleObra);
-            }
-        }
     }
 }
