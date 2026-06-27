@@ -143,14 +143,14 @@ public class EstadisticasActivity extends AppCompatActivity {
             }
 
             // ── Bar chart — por nivel de riesgo ──────────────
-            JSONArray porNivel = data.optJSONArray("por_nivel");
-            if (porNivel != null && porNivel.length() > 0) {
+            JSONArray porArea = data.optJSONArray("por_area");
+            if (porArea != null && porArea.length() > 0) {
                 List<BarEntry> barEntries = new ArrayList<>();
                 List<String> labels = new ArrayList<>();
-                for (int i = 0; i < porNivel.length(); i++) {
-                    JSONObject n = porNivel.getJSONObject(i);
+                for (int i = 0; i < porArea.length(); i++) {
+                    JSONObject n = porArea.getJSONObject(i);
                     barEntries.add(new BarEntry(i, n.optInt("total")));
-                    labels.add(n.optString("nivel", "—"));
+                    labels.add(n.optString("area", "—"));
                 }
 
                 BarDataSet barDataSet = new BarDataSet(barEntries, "Registros por nivel");
