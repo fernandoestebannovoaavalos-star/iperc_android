@@ -47,7 +47,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="6dp">
+        android:layout_marginBottom="4dp">
 
         <EditText
             android:id="@+id/etPAdicional"
@@ -69,6 +69,20 @@
             android:padding="8dp"
             android:layout_marginStart="4dp"/>
     </LinearLayout>
+
+    <!-- Nivel calculado automáticamente -->
+    <TextView
+        android:id="@+id/tvNivelAdicional"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nivel: —"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:textColor="#555555"
+        android:padding="8dp"
+        android:background="#EEEEEE"
+        android:layout_marginBottom="6dp"
+        android:visibility="gone"/>
 
     <EditText
         android:id="@+id/etMedidasAdicional"

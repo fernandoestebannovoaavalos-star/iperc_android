@@ -7,6 +7,16 @@
     android:padding="16dp"
     android:layout_marginBottom="12dp">
 
+    <CheckBox
+        android:id="@+id/checkPeligro"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Seleccionar este peligro"
+        android:textSize="13sp"
+        android:textColor="#1B5E20"
+        android:checked="true"
+        android:layout_marginBottom="6dp"/>
+
     <TextView
         android:id="@+id/tvDescripcion"
         android:layout_width="wrap_content"
