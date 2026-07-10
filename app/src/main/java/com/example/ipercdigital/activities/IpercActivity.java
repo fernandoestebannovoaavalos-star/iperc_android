@@ -4,11 +4,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,10 +44,13 @@ public class IpercActivity extends AppCompatActivity {
     private Spinner spinnerArea, spinnerActividad;
     private Button btnSiguiente;
     private ProgressBar progressBar;
+    private WebView webViewMapa;
+    private LinearLayout layoutMapa;
+    private TextView tvGpsInfo;
     private String token;
     private List<Area> listaAreas = new ArrayList<>();
     private List<Actividad> listaActividades = new ArrayList<>();
-    private boolean yaGuardo = false; // ← evita doble registro
+    private boolean yaGuardo = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +64,14 @@ public class IpercActivity extends AppCompatActivity {
         spinnerActividad = findViewById(R.id.spinnerActividad);
         btnSiguiente     = findViewById(R.id.btnSiguiente);
         progressBar      = findViewById(R.id.progressBar);
+        webViewMapa      = findViewById(R.id.webViewMapa);
+        layoutMapa       = findViewById(R.id.layoutMapa);
+        tvGpsInfo        = findViewById(R.id.tvGpsInfo);
+
+        // Configurar WebView
+        WebSettings settings = webViewMapa.getSettings();
+        settings.setJavaScriptEnabled(true);
+        webViewMapa.setWebViewClient(new WebViewClient());
 
         cargarAreas();
 
@@ -150,7 +166,7 @@ public class IpercActivity extends AppCompatActivity {
                         location -> {
                             if (!yaGuardo) {
                                 yaGuardo = true;
-                                validarGPS(location.getLatitude(), location.getLongitude());
+                                mostrarMapa(location.getLatitude(), location.getLongitude());
                             }
                         },
                         null);
@@ -160,13 +176,12 @@ public class IpercActivity extends AppCompatActivity {
                         location -> {
                             if (!yaGuardo) {
                                 yaGuardo = true;
-                                validarGPS(location.getLatitude(), location.getLongitude());
+                                mostrarMapa(location.getLatitude(), location.getLongitude());
                             }
                         },
                         null);
             } else {
-                // Sin GPS ni red — usar coordenadas por defecto
-                validarGPS(-7.1638, -78.5040);
+                mostrarMapa(-7.1638, -78.5040);
             }
             Toast.makeText(this, "Obteniendo ubicación...", Toast.LENGTH_SHORT).show();
         } catch (SecurityException e) {
@@ -174,23 +189,37 @@ public class IpercActivity extends AppCompatActivity {
         }
     }
 
-    private void validarGPS(double latActual, double lonActual) {
-        int areaId      = listaAreas.get(spinnerArea.getSelectedItemPosition()).getId();
-        int actividadId = listaActividades.get(spinnerActividad.getSelectedItemPosition()).getId();
-        boolean geoValidado = true;
+    private void mostrarMapa(double lat, double lon) {
+        runOnUiThread(() -> {
+            // Mostrar info GPS
+            tvGpsInfo.setText("📍 GPS Validado · Lat: " +
+                    String.format("%.6f", lat) + "  Lon: " +
+                    String.format("%.6f", lon));
+            layoutMapa.setVisibility(View.VISIBLE);
 
-        Toast.makeText(this, "📍 Ubicación obtenida", Toast.LENGTH_SHORT).show();
-        guardarRegistro(areaId, actividadId, latActual, lonActual, geoValidado);
-    }
+            // Cargar mapa OpenStreetMap con Leaflet
+            String html = "<!DOCTYPE html><html><head>" +
+                    "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+                    "<link rel='stylesheet' href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'/>" +
+                    "<script src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'></script>" +
+                    "<style>html,body,#map{width:100%;height:100%;margin:0;padding:0;}</style>" +
+                    "</head><body>" +
+                    "<div id='map'></div>" +
+                    "<script>" +
+                    "var map = L.map('map').setView([" + lat + "," + lon + "], 16);" +
+                    "L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);" +
+                    "L.marker([" + lat + "," + lon + "]).addTo(map)" +
+                    ".bindPopup('📍 Tu ubicación actual').openPopup();" +
+                    "L.circle([" + lat + "," + lon + "], {color:'green',radius:100}).addTo(map);" +
+                    "</script></body></html>";
 
-    private double haversine(double lat1, double lon1, double lat2, double lon2) {
-        final int R = 6371000;
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                        Math.sin(dLon/2) * Math.sin(dLon/2);
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            webViewMapa.loadDataWithBaseURL("https://unpkg.com", html, "text/html", "UTF-8", null);
+
+            // Guardar registro automáticamente
+            int areaId = listaAreas.get(spinnerArea.getSelectedItemPosition()).getId();
+            int actividadId = listaActividades.get(spinnerActividad.getSelectedItemPosition()).getId();
+            guardarRegistro(areaId, actividadId, lat, lon, true);
+        });
     }
 
     private void guardarRegistro(int areaId, int actividadId,
@@ -239,15 +268,20 @@ public class IpercActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     progressBar.setVisibility(View.GONE);
                     btnSiguiente.setEnabled(true);
-                    Intent intent = new Intent(this, PeligrosActivity.class);
-                    intent.putExtra("area_id", areaId);
-                    intent.putExtra("actividad_id", actividadId);
-                    intent.putExtra("lat", lat);
-                    intent.putExtra("lon", lon);
-                    intent.putExtra("geo_validado", geoValidado);
-                    intent.putExtra("registro_id", registroId);
-                    startActivity(intent);
-                    finish();
+
+                    // Cambiar botón para continuar
+                    btnSiguiente.setText("Continuar →");
+                    btnSiguiente.setOnClickListener(v -> {
+                        Intent intent = new Intent(this, PeligrosActivity.class);
+                        intent.putExtra("area_id", areaId);
+                        intent.putExtra("actividad_id", actividadId);
+                        intent.putExtra("lat", lat);
+                        intent.putExtra("lon", lon);
+                        intent.putExtra("geo_validado", geoValidado);
+                        intent.putExtra("registro_id", registroId);
+                        startActivity(intent);
+                        finish();
+                    });
                 });
 
             } catch (Exception e) {
@@ -259,6 +293,16 @@ public class IpercActivity extends AppCompatActivity {
                 });
             }
         }).start();
+    }
+
+    private double haversine(double lat1, double lon1, double lat2, double lon2) {
+        final int R = 6371000;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                        Math.sin(dLon/2) * Math.sin(dLon/2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
     @Override

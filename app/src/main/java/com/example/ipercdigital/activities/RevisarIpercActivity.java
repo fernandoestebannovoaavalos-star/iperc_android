@@ -95,7 +95,17 @@ public class RevisarIpercActivity extends AppCompatActivity {
             agregarTexto("🏗 Área: " + data.optString("area"), 15, false);
             agregarTexto("⚙ Actividad: " + data.optString("actividad"), 15, false);
             agregarTexto("📅 Fecha: " + data.optString("fecha"), 14, false);
-            agregarTexto("📍 GPS: " + (data.optBoolean("geo_validado") ? "✓ Validado" : "Sin validar"), 14, false);
+
+            boolean geoValidado = data.optBoolean("geo_validado");
+            double lat = data.optDouble("lat", 0);
+            double lon = data.optDouble("lon", 0);
+            String gpsTexto;
+            if (geoValidado && lat != 0 && lon != 0) {
+                gpsTexto = "📍 GPS: ✓ Validado  |  Lat: " + String.format("%.6f", lat) + "  Lon: " + String.format("%.6f", lon);
+            } else {
+                gpsTexto = "📍 GPS: Sin validar";
+            }
+            agregarTexto(gpsTexto, 14, false);
 
             agregarSeparador();
             agregarTexto("⚠ PELIGROS IDENTIFICADOS", 15, true);
