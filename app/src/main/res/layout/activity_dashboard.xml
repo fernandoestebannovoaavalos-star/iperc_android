@@ -94,16 +94,37 @@
             android:textStyle="bold"
             android:layout_marginBottom="8dp"/>
 
-        <Button
-            android:id="@+id/btnSupervisor"
+        <FrameLayout
+            android:id="@+id/frameSupervisor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🔍 Panel Supervisor"
-            android:backgroundTint="#1B5E20"
-            android:textColor="#FFFFFF"
-            android:padding="14dp"
             android:layout_marginBottom="10dp"
-            android:visibility="gone"/>
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btnSupervisor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🔍 Panel Supervisor"
+                android:backgroundTint="#1B5E20"
+                android:textColor="#FFFFFF"
+                android:padding="14dp"/>
+
+            <TextView
+                android:id="@+id/badgeSupervisor"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="end|top"
+                android:layout_marginEnd="4dp"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/badge_circle"
+                android:gravity="center"
+                android:text="0"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:visibility="gone"/>
+        </FrameLayout>
 
         <Button
             android:id="@+id/btnEstadisticas"

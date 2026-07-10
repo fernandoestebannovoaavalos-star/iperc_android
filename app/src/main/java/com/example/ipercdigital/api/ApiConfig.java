@@ -10,9 +10,10 @@ public class ApiConfig {
     private static final String URL_UNIVERSIDAD = "http://10.97.180.101:5000";
     private static final String URL_NGROK       = "https://partake-legibly-overlap.ngrok-free.dev";
     private static final String URL_EMULADOR    = "http://10.0.2.2:5000";
+    private static final String URL_RENDER = "https://iperc-android-api.onrender.com";
 
     // ← Cambia solo esta línea según dónde estés
-    public static final String BASE_URL = URL_CASA + "/";
+    public static final String BASE_URL = URL_RENDER + "/";
 
     public static HttpURLConnection getConnection(String endpoint) throws Exception {
         URL url = new URL(BASE_URL + endpoint);
